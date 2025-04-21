@@ -1,40 +1,86 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Task } from "../types/taskTypes";
+import { getTasks, addTask as firebaseAddTask, updateTask as firebaseUpdateTask, deleteTask as firebaseDeleteTask } from "../services/firebaseService";
 
 interface TaskState {
   tasks: Task[];
+  loading: boolean;
+  error: string | null;
 }
 
 const initialState: TaskState = {
   tasks: [],
+  loading: false,
+  error: null,
 };
 
 const taskSlice = createSlice({
   name: "tasks",
   initialState,
   reducers: {
-    addTask: (state, action: PayloadAction<Task>) => {
-      state.tasks.push({
-        ...action.payload,
-        startDate: action.payload.startDate ?? new Date().toISOString(),
-        endDate: action.payload.endDate ?? new Date().toISOString(),
-      });
+    setTasks: (state, action: PayloadAction<Task[]>) => {
+      state.tasks = action.payload;
     },
-    updateTask: (state, action: PayloadAction<Task>) => {
-      const index = state.tasks.findIndex((t) => t.id === action.payload.id);
-      if (index !== -1) {
-        state.tasks[index] = {
-          ...action.payload,
-          startDate: action.payload.startDate ?? state.tasks[index].startDate,
-          endDate: action.payload.endDate ?? state.tasks[index].endDate,
-        };
-      }
+    setLoading: (state, action: PayloadAction<boolean>) => {
+      state.loading = action.payload;
     },
-    deleteTask: (state, action: PayloadAction<string>) => {
-      state.tasks = state.tasks.filter((task) => task.id !== action.payload);
+    setError: (state, action: PayloadAction<string | null>) => {
+      state.error = action.payload;
     },
   },
 });
 
-export const { addTask, updateTask, deleteTask } = taskSlice.actions;
+export const { setTasks, setLoading, setError } = taskSlice.actions;
+
+// Thunk actions
+export const loadTasks = () => async (dispatch: any) => {
+  try {
+    dispatch(setLoading(true));
+    const tasks = await getTasks();
+    dispatch(setTasks(tasks));
+  } catch (error) {
+    dispatch(setError(error instanceof Error ? error.message : 'An error occurred'));
+  } finally {
+    dispatch(setLoading(false));
+  }
+};
+
+export const createTask = (task: Omit<Task, "id">) => async (dispatch: any) => {
+  try {
+    dispatch(setLoading(true));
+    const newTask = await firebaseAddTask(task);
+    dispatch(setTasks([...taskSlice.getInitialState().tasks, newTask]));
+  } catch (error) {
+    dispatch(setError(error instanceof Error ? error.message : 'An error occurred'));
+  } finally {
+    dispatch(setLoading(false));
+  }
+};
+
+export const updateTask = (task: Task) => async (dispatch: any) => {
+  try {
+    dispatch(setLoading(true));
+    const updatedTask = await firebaseUpdateTask(task.id, task);
+    dispatch(setTasks(taskSlice.getInitialState().tasks.map(t => 
+      t.id === updatedTask.id ? updatedTask : t
+    )));
+  } catch (error) {
+    dispatch(setError(error instanceof Error ? error.message : 'An error occurred'));
+  } finally {
+    dispatch(setLoading(false));
+  }
+};
+
+export const removeTask = (taskId: string) => async (dispatch: any) => {
+  try {
+    dispatch(setLoading(true));
+    await firebaseDeleteTask(taskId);
+    dispatch(setTasks(taskSlice.getInitialState().tasks.filter(t => t.id !== taskId)));
+  } catch (error) {
+    dispatch(setError(error instanceof Error ? error.message : 'An error occurred'));
+  } finally {
+    dispatch(setLoading(false));
+  }
+};
+
 export default taskSlice.reducer;
