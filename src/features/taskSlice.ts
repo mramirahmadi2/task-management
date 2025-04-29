@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Task } from "../types/taskTypes";
-import { getTasks, addTask as firebaseAddTask, updateTask as firebaseUpdateTask, deleteTask as firebaseDeleteTask } from "../services/firebaseService";
+import { getTasks, addTask, updateTask, deleteTask } from "../services/localStorageService";
 
 interface TaskState {
   tasks: Task[];
@@ -48,8 +48,9 @@ export const loadTasks = () => async (dispatch: any) => {
 export const createTask = (task: Omit<Task, "id">) => async (dispatch: any) => {
   try {
     dispatch(setLoading(true));
-    const newTask = await firebaseAddTask(task);
-    dispatch(setTasks([...taskSlice.getInitialState().tasks, newTask]));
+    const newTask = await addTask({ ...task, id: crypto.randomUUID() });
+    const tasks = await getTasks();
+    dispatch(setTasks(tasks));
   } catch (error) {
     dispatch(setError(error instanceof Error ? error.message : 'An error occurred'));
   } finally {
@@ -57,13 +58,12 @@ export const createTask = (task: Omit<Task, "id">) => async (dispatch: any) => {
   }
 };
 
-export const updateTask = (task: Task) => async (dispatch: any) => {
+export const updateTaskAction = (task: Task) => async (dispatch: any) => {
   try {
     dispatch(setLoading(true));
-    const updatedTask = await firebaseUpdateTask(task.id, task);
-    dispatch(setTasks(taskSlice.getInitialState().tasks.map(t => 
-      t.id === updatedTask.id ? updatedTask : t
-    )));
+    await updateTask(task.id, task);
+    const tasks = await getTasks();
+    dispatch(setTasks(tasks));
   } catch (error) {
     dispatch(setError(error instanceof Error ? error.message : 'An error occurred'));
   } finally {
@@ -74,8 +74,9 @@ export const updateTask = (task: Task) => async (dispatch: any) => {
 export const removeTask = (taskId: string) => async (dispatch: any) => {
   try {
     dispatch(setLoading(true));
-    await firebaseDeleteTask(taskId);
-    dispatch(setTasks(taskSlice.getInitialState().tasks.filter(t => t.id !== taskId)));
+    await deleteTask(taskId);
+    const tasks = await getTasks();
+    dispatch(setTasks(tasks));
   } catch (error) {
     dispatch(setError(error instanceof Error ? error.message : 'An error occurred'));
   } finally {

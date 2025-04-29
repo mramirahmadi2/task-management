@@ -1,7 +1,7 @@
 // import TaskList from "../../components/TaskList";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store";
-import { createTask, updateTask, removeTask } from "../../features/taskSlice";
+import { createTask, updateTaskAction, removeTask, loadTasks } from "../../features/taskSlice";
 import {
   Button,
   Dialog,
@@ -38,8 +38,9 @@ const Home = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    dispatch(loadTasks());
     loadGoals();
-  }, []);
+  }, [dispatch]);
 
   const loadGoals = async () => {
     try {
@@ -153,24 +154,16 @@ const Home = () => {
 
   const handleSaveTask = (values: Omit<Task, "id">) => {
     if (isEditMode && selectedTask) {
-      dispatch(updateTask({ ...selectedTask, ...values }));
+      dispatch(updateTaskAction({ ...selectedTask, ...values }));
     } else {
-      dispatch(
-        createTask({
-          id: uuidv4(),
-          ...values,
-          completed: false,
-          startDate: values.startDate ?? new Date().toISOString(),
-          endDate: values.endDate ?? new Date().toISOString(),
-        })
-      );
+      dispatch(createTask(values));
     }
     setIsModalOpen(false);
   };
   
 
   const handleStatusChange = (task: Task, newStatus: Task["status"]) => {
-    dispatch(updateTask({ ...task, status: newStatus }));
+    dispatch(updateTaskAction({ ...task, status: newStatus }));
   };
   return (
     <>
