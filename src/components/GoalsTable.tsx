@@ -60,6 +60,7 @@ const GoalsTable: React.FC<GoalsTableProps> = ({
                       <RadioButtonUnchecked />
                     )}
                   </IconButton>
+                  
                 </Tooltip>
               </TableCell>
               <TableCell align="center">
