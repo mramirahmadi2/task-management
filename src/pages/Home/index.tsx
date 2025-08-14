@@ -1,7 +1,12 @@
 // import TaskList from "../../components/TaskList";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store";
-import { createTask, updateTaskAction, removeTask, loadTasks } from "../../features/taskSlice";
+import {
+  createTask,
+  updateTaskAction,
+  removeTask,
+  loadTasks,
+} from "../../features/taskSlice";
 import {
   Button,
   Dialog,
@@ -20,7 +25,12 @@ import GoalForm from "../../components/GoalForm";
 import { v4 as uuidv4 } from "uuid";
 import ButtonComponent from "../../components/ButtonComponent";
 import { Task, Goal } from "../../types/taskTypes";
-import { getGoals, addGoal, updateGoal, deleteGoal } from "../../services/localStorageService";
+import {
+  getGoals,
+  addGoal,
+  updateGoal,
+  deleteGoal,
+} from "../../services/localStorageService";
 
 const Home = () => {
   const tasks = useSelector((state: RootState) => state.tasks.tasks);
@@ -48,13 +58,16 @@ const Home = () => {
       const data = await getGoals();
       setGoals(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddGoal = async (values: { title: string; type: "daily" | "monthly" }) => {
+  const handleAddGoal = async (values: {
+    title: string;
+    type: "daily" | "monthly";
+  }) => {
     try {
       setLoading(true);
       if (selectedGoal) {
@@ -63,9 +76,9 @@ const Home = () => {
           title: values.title,
           type: values.type,
         });
-        setGoals(goals.map(goal => 
-          goal.id === updatedGoal.id ? updatedGoal : goal
-        ));
+        setGoals(
+          goals.map((goal) => (goal.id === updatedGoal.id ? updatedGoal : goal))
+        );
       } else {
         const newGoal = await addGoal({
           id: uuidv4(),
@@ -78,7 +91,7 @@ const Home = () => {
       setIsGoalModalOpen(false);
       setSelectedGoal(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -87,18 +100,16 @@ const Home = () => {
   const handleToggleGoal = async (goalId: string) => {
     try {
       setLoading(true);
-      const goal = goals.find(g => g.id === goalId);
+      const goal = goals.find((g) => g.id === goalId);
       if (goal) {
         const updatedGoal = await updateGoal(goalId, {
           ...goal,
           completed: !goal.completed,
         });
-        setGoals(goals.map(g => 
-          g.id === updatedGoal.id ? updatedGoal : g
-        ));
+        setGoals(goals.map((g) => (g.id === updatedGoal.id ? updatedGoal : g)));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -110,7 +121,7 @@ const Home = () => {
   };
 
   const handleDeleteGoal = (goalId: string) => {
-    setSelectedGoal(goals.find(goal => goal.id === goalId) || null);
+    setSelectedGoal(goals.find((goal) => goal.id === goalId) || null);
     setIsGoalConfirmOpen(true);
   };
 
@@ -119,9 +130,9 @@ const Home = () => {
       try {
         setLoading(true);
         await deleteGoal(selectedGoal.id);
-        setGoals(goals.filter(goal => goal.id !== selectedGoal.id));
+        setGoals(goals.filter((goal) => goal.id !== selectedGoal.id));
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
         setLoading(false);
       }
@@ -160,21 +171,33 @@ const Home = () => {
     }
     setIsModalOpen(false);
   };
-  
 
   const handleStatusChange = (task: Task, newStatus: Task["status"]) => {
     dispatch(updateTaskAction({ ...task, status: newStatus }));
   };
   return (
     <>
-      <ButtonComponent
-        variant="contained"
-        color="primary"
-        icon={<Add />}
-        text="Add Task"
-        onClick={handleAddClick}
-        sx={{ marginBottom: 2 }}
-      />
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mt: 4,
+        }}
+      >
+        <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+          Task
+        </Typography>
+        <ButtonComponent
+          variant="contained"
+          color="primary"
+          icon={<Add />}
+          text="Add Task"
+          onClick={handleAddClick}
+          sx={{ marginBottom: 2 }}
+        />
+      </Box>
+
       <TaskTable
         tasks={tasks}
         onStatusChange={handleStatusChange}
@@ -182,8 +205,15 @@ const Home = () => {
         onDelete={handleDeleteClick}
       />
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 4 }}>
-        <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mt: 4,
+        }}
+      >
+        <Typography variant="h5" sx={{ fontWeight: "bold" }}>
           Goals
         </Typography>
         <ButtonComponent
@@ -198,8 +228,8 @@ const Home = () => {
         />
       </Box>
 
-      <GoalsTable 
-        goals={goals} 
+      <GoalsTable
+        goals={goals}
         onToggleGoal={handleToggleGoal}
         onEditGoal={handleEditGoal}
         onDeleteGoal={handleDeleteGoal}
@@ -216,7 +246,7 @@ const Home = () => {
                 description: "",
                 status: "Not Started",
                 completed: false,
-                startDate: new Date().toISOString(), 
+                startDate: new Date().toISOString(),
                 endDate: new Date().toISOString(),
                 taskType: "work",
               }
@@ -246,18 +276,22 @@ const Home = () => {
       <Dialog open={isGoalModalOpen} onClose={() => setIsGoalModalOpen(false)}>
         <DialogTitle>{selectedGoal ? "Edit Goal" : "Add New Goal"}</DialogTitle>
         <DialogContent>
-          <GoalForm 
-            onSubmit={handleAddGoal} 
+          <GoalForm
+            onSubmit={handleAddGoal}
             initialValues={selectedGoal || undefined}
           />
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isGoalConfirmOpen} onClose={() => setIsGoalConfirmOpen(false)}>
+      <Dialog
+        open={isGoalConfirmOpen}
+        onClose={() => setIsGoalConfirmOpen(false)}
+      >
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete the goal <b>{selectedGoal?.title}</b>?
+            Are you sure you want to delete the goal{" "}
+            <b>{selectedGoal?.title}</b>?
           </Typography>
         </DialogContent>
         <DialogActions>
