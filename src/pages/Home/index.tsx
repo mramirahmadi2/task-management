@@ -19,8 +19,8 @@ import GoalsTable from "../../components/GoalsTable";
 import GoalForm from "../../components/GoalForm";
 import { v4 as uuidv4 } from "uuid";
 import ButtonComponent from "../../components/ButtonComponent";
-import { Task } from "../../types/taskTypes";
-import { getGoals, addGoal, updateGoal, deleteGoal } from "../../services/firebaseService";
+import { Task, Goal } from "../../types/taskTypes";
+import { getGoals, addGoal, updateGoal, deleteGoal } from "../../services/localStorageService";
 
 const Home = () => {
   const tasks = useSelector((state: RootState) => state.tasks.tasks);
@@ -218,6 +218,7 @@ const Home = () => {
                 completed: false,
                 startDate: new Date().toISOString(), 
                 endDate: new Date().toISOString(),
+                taskType: "work",
               }
             }
             isEditMode={isEditMode}

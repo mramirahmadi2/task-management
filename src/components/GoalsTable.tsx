@@ -11,13 +11,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import { CheckCircle, RadioButtonUnchecked, Edit, Delete } from "@mui/icons-material";
-
-interface Goal {
-  id: string;
-  title: string;
-  type: "daily" | "monthly";
-  completed: boolean;
-}
+import { Goal } from "../types/taskTypes";
 
 interface GoalsTableProps {
   goals: Goal[];

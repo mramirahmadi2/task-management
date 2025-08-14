@@ -1,11 +1,7 @@
 import { Button, TextField, Box, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-
-interface GoalFormValues {
-  title: string;
-  type: "daily" | "monthly";
-}
+import { GoalFormValues } from "../types/taskTypes";
 
 interface GoalFormProps {
   onSubmit: (values: GoalFormValues) => void;

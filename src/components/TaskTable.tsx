@@ -10,6 +10,7 @@ import {
   Select,
   MenuItem,
   Tooltip,
+  Box,
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
 import { Task } from "../types/taskTypes";
@@ -47,6 +48,7 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, onStatusChange, onEdit, on
             <TableCell><b>Start Date</b></TableCell>
             <TableCell><b>End Date</b></TableCell>
             <TableCell align="center"><b>Status</b></TableCell>
+            <TableCell align="center"><b>Type</b></TableCell>
             <TableCell align="center"><b>Actions</b></TableCell>
           </TableRow>
         </TableHead>
@@ -87,6 +89,23 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, onStatusChange, onEdit, on
                     <MenuItem value="In Progress">In Progress</MenuItem>
                     <MenuItem value="Completed">Completed</MenuItem>
                   </Select>
+                </TableCell>
+                <TableCell align="center">
+                  <Box
+                    sx={{
+                      display: 'inline-block',
+                      px: 1.5,
+                      py: 0.5,
+                      borderRadius: '12px',
+                      fontSize: '0.75rem',
+                      fontWeight: 'bold',
+                      textTransform: 'uppercase',
+                      backgroundColor: task.taskType === 'work' ? '#1976d2' : '#f50057',
+                      color: 'white',
+                    }}
+                  >
+                    {task.taskType}
+                  </Box>
                 </TableCell>
                 <TableCell align="center">
                   <Tooltip title="Edit">

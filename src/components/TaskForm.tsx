@@ -20,6 +20,7 @@ const TaskForm = ({ onSubmit, initialValues, isEditMode = false }: TaskFormProps
       completed: false,
       startDate: new Date().toISOString(),
       endDate: new Date().toISOString(),
+      taskType: "work",
     },
     validationSchema: Yup.object({
       title: Yup.string()
@@ -36,6 +37,9 @@ const TaskForm = ({ onSubmit, initialValues, isEditMode = false }: TaskFormProps
         .test("is-after-start", "End date must be after start date", function (value) {
           return value && new Date(value) > new Date(this.parent.startDate);
         }),
+      taskType: Yup.string()
+        .oneOf(["work", "personal"], "Invalid task type")
+        .required("Task type is required"),
     }),
     onSubmit,
     enableReinitialize: true,
@@ -86,6 +90,19 @@ const TaskForm = ({ onSubmit, initialValues, isEditMode = false }: TaskFormProps
             <MenuItem value="Completed">Completed</MenuItem>
           </Select>
           {formik.touched.status && formik.errors.status && <FormHelperText>{formik.errors.status}</FormHelperText>}
+        </FormControl>
+
+        <FormControl fullWidth margin="normal" error={formik.touched.taskType && Boolean(formik.errors.taskType)}>
+          <InputLabel>Task Type</InputLabel>
+          <Select
+            {...formik.getFieldProps("taskType")}
+            onBlur={formik.handleBlur}
+            value={formik.values.taskType}
+          >
+            <MenuItem value="work">Work</MenuItem>
+            <MenuItem value="personal">Personal</MenuItem>
+          </Select>
+          {formik.touched.taskType && formik.errors.taskType && <FormHelperText>{formik.errors.taskType}</FormHelperText>}
         </FormControl>
 
         <Box
